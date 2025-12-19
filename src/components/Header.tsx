@@ -1,5 +1,5 @@
-import { SignedIn, UserButton } from "@clerk/clerk-react";
-import Link from "next/dist/client/link";
+import { SignedIn, UserButton } from "@clerk/nextjs";
+import Link from "next/link";
 import { Button } from "./ui/button";
 import { FilePlus2 } from "lucide-react";
 
