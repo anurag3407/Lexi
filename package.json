@@ -13,6 +13,8 @@
     "@radix-ui/react-slot": "^1.2.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "firebase": "^12.7.0",
+    "firebase-admin": "^13.6.0",
     "lucide-react": "^0.517.0",
     "next": "^16.1.0",
     "react": "^19.2.3",
