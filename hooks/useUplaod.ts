@@ -8,6 +8,10 @@ import {v4 as uuidv4} from 'uuid'
 import { db, storage } from '../firebase';
 import { getDownloadURL, ref, uploadBytesResumable } from '@firebase/storage';
 import { doc, serverTimestamp, setDoc } from '@firebase/firestore';
+import { generateEmbeddings } from '@/actions/generateEmbeddings';
+import { useCallback } from 'react';
+
+
 
 export enum StatusText {
   UPLOADING = 'Uploading file...',
@@ -76,6 +80,8 @@ const useUpload = () => {
                 });
                 setStatus(StatusText.GENERATING);
                 //generate AI Embeddings here
+                await generateEmbeddings(fileIdToUploadTo);
+
 
 
                 setFileId(fileIdToUploadTo);
