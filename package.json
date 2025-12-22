@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@react-pdf/renderer": "4.3.1",
     "@clerk/nextjs": "^6.36.4",
     "@langchain/community": "^1.1.1",
     "@langchain/core": "^1.1.7",
