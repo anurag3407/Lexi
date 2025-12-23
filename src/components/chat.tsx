@@ -9,7 +9,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useUser } from "@clerk/nextjs";
 import ChatMessage from "./ChatMessage";
-import { askQuestion } from "@/actions/askQuestion";
+import { askQuestion } from "../../actions/askQuestion";
 
 export type Message = {
     id?: string;
@@ -81,7 +81,7 @@ function Chat({ id }: { id: string }) {
                     ...prev.slice(0, -1),
                     {
                         role: "ai",
-                        message: message || "Sorry, I encountered an error. Please try again.",
+                        message: message || "Sorry, I encountered an error.",
                         createdAt: new Date(),
                     }
                 ]);

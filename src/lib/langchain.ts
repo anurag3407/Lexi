@@ -1,18 +1,54 @@
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
+import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { PineconeStore } from "@langchain/pinecone";
 import { Index, RecordMetadata } from "@pinecone-database/pinecone";
+import { HumanMessage, AIMessage } from "@langchain/core/messages";
 import pineconeClient from "./pinecone";
 import { adminDb } from "../../firbaseAdmin";
 import { auth } from "@clerk/nextjs/server";
 
 const indexName = process.env.PINECONE_INDEX_NAME || "default-index";
 
+const model = new ChatGoogleGenerativeAI({
+    apiKey: process.env.GOOGLE_API_KEY,
+    model: "gemini-2.0-flash-exp",
+    temperature: 0.7,
+});
+
 async function namespaceExists(index: Index<RecordMetadata>, namespace: string) {
     if (namespace == null) throw new Error("No namespace value provided.");
     const { namespaces } = await index.describeIndexStats();
     return namespaces?.[namespace] !== undefined;
+}
+
+async function fetchMessagesFromDb(docId: string) {
+    const { userId } = await auth();
+
+    if (!userId) {
+        throw new Error("User not authenticated");
+    }
+
+    console.log("--- Fetching chat history from Firebase...");
+    const chatRef = await adminDb
+        .collection("users")
+        .doc(userId)
+        .collection("files")
+        .doc(docId)
+        .collection("chat")
+        .orderBy("createdAt", "asc")
+        .get();
+
+    const chatHistory = chatRef.docs.map((doc) => {
+        const data = doc.data();
+        return data.role === "human"
+            ? new HumanMessage(data.message)
+            : new AIMessage(data.message);
+    }) as (HumanMessage | AIMessage)[];
+
+    console.log(`--- Fetched ${chatHistory.length} messages from history`);
+    return chatHistory;
 }
 
 export async function generateDocs(docId: string) {
@@ -93,6 +129,8 @@ export async function generateLangchainCompletion(docId: string, question: strin
         throw new Error("User not authenticated");
     }
 
+    console.log("--- Generating LangChain completion for:", question);
+
     const embeddings = new GoogleGenerativeAIEmbeddings({
         apiKey: process.env.GOOGLE_API_KEY,
         model: "models/embedding-001",
@@ -107,8 +145,18 @@ export async function generateLangchainCompletion(docId: string, question: strin
     const results = await pineconeVectorStore.similaritySearch(question, 4);
     const context = results.map((doc) => doc.pageContent).join("\n\n");
 
+    const chatHistory = await fetchMessagesFromDb(docId);
+
+    const messages = [
+        ...chatHistory,
+        new HumanMessage(`Context from the document:\n${context}\n\nQuestion: ${question}`)
+    ];
+
+    const response = await model.invoke(messages);
+
+    console.log("--- Generated response");
     return {
         success: true,
-        message: `Based on the document:\n\n${context.substring(0, 500)}...`
+        message: response.content.toString()
     };
 }
