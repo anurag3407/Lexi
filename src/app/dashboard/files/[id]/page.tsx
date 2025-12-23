@@ -1,14 +1,19 @@
 import { adminDb } from "../../../../../firbaseAdmin";
-import { auth } from "../../../../../firebase";
+import { auth } from "@clerk/nextjs/server";
+import Chat from "@/components/chat";
 
 async function ChatToFilePage({
-    params : {id},
-} : {
-    params : {id : string}
+    params,
+}: {
+    params: Promise<{ id: string }>
 }) {
+    const { id } = await params;
+    await auth.protect();
+    const { userId } = await auth();
 
-    auth().protect();
-    const {userId} = await auth();
+    if (!userId) {
+        throw new Error("User not authenticated");
+    }
 
     const ref = await adminDb
         .collection("users")
@@ -17,56 +22,33 @@ async function ChatToFilePage({
         .doc(id)
         .get();
 
-        const url = ref.data()?.downloadUrl;
+    const url = ref.data()?.downloadUrl;
 
-
-        return <div className = 'grid lg:grid-cols-5 h-full overflow-hidden'>
-
-            {/*Right*/}
-
-            <div className = "col-span-5 lg:col-span-2 overflow-y-auto"> 
-                {/*Chat */}
-                <h2>Chat</h2>
-                <div>
-                    <p>Chat with the file owner</p>
-                </div>
-            </div>  
-            <div className = "col-span-5 lg:col-span-3 overflow-y-auto">    
-            <div> {/*File Viewer */}
-                <h2>File Viewer</h2>
-                <div>
-                    <iframe src={url} width="100%" height="600px">
-                    </iframe>
-                </div>
+    return (
+        <div className="grid lg:grid-cols-5 h-full overflow-hidden">
+            {/* Left - Chat */}
+            <div className="col-span-5 lg:col-span-2 overflow-y-auto border-r">
+                <Chat id={id} />
             </div>
-            <div> {/*Actions */}
 
-        </div>  
+            {/* Right - PDF Viewer */}
+            <div className="col-span-5 lg:col-span-3 bg-gray-100 overflow-auto">
+                {url ? (
+                    <iframe 
+                        src={url} 
+                        className="w-full h-full"
+                    />
+                ) : (
+                    <div className="flex items-center justify-center h-full">
+                        <p className="text-gray-500">No PDF available</p>
+                    </div>
+                )}
+            </div>
         </div>
-        {/*left */}
-        <div> {/*Chat */}
-            <h2>Chat</h2>
-            <div>
-                <p>Chat with the file owner</p>
-            </div>
-        </div>  
-        <div> {/*File Viewer */}
-            <h2>File Viewer</h2>
-            <div>
-                <iframe src={url} width="100%" height="600px">
-                </iframe>
-            </div>
-        </div>  
-
-    );  
+    );
 }
 
-
-
-
-
-
-
 export default ChatToFilePage;
+
 
 
