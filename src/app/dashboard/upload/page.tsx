@@ -1,11 +1,13 @@
-import FileUploader from "@/components/FileUploader"
+'use client';
+
+import FileUploader from "@/components/FileUploader";
 
 function UploadPage() {
   return (
-	<div>
-		<FileUploader />
-	</div>
-  )
+    <div>
+      <FileUploader />
+    </div>
+  );
 }
 
-export default UploadPage
+export default UploadPage;

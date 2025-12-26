@@ -98,10 +98,16 @@ export async function generateEmbeddingsInPineconeStore(docId: string) {
 
     console.log("--- Generating embeddings for document: ", docId);
 
-    const embeddings = new GoogleGenerativeAIEmbeddings({
-        apiKey: process.env.GOOGLE_API_KEY,
-        model: "models/embedding-001",
-    });
+    let embeddings;
+    try {
+        embeddings = new GoogleGenerativeAIEmbeddings({
+            apiKey: process.env.GOOGLE_API_KEY,
+            model: "models/embedding-001", // 768 dimensions - compatible with most use cases
+        });
+    } catch (error) {
+        console.error("Error initializing embeddings:", error);
+        throw new Error("Failed to initialize embedding model. Please check your API key and quota.");
+    }
 
     const index = await pineconeClient.Index(indexName);
     const namespaceAlreadyExists = await namespaceExists(index, docId);
@@ -115,10 +121,20 @@ export async function generateEmbeddingsInPineconeStore(docId: string) {
     } else {
         const splitDocs = await generateDocs(docId);
         console.log(`--- Storing embeddings in ${docId} namespace...`);
-        return await PineconeStore.fromDocuments(splitDocs, embeddings, {
-            pineconeIndex: index,
-            namespace: docId,
-        });
+        
+        try {
+            return await PineconeStore.fromDocuments(splitDocs, embeddings, {
+                pineconeIndex: index,
+                namespace: docId,
+            });
+        } catch (error: unknown) {
+            console.error("Error generating embeddings:", error);
+            const err = error as { status?: number; message?: string };
+            if (err.status === 429 || err.message?.includes("quota")) {
+                throw new Error("Google API quota exceeded. Please wait a few minutes and try again, or upgrade your API plan.");
+            }
+            throw error;
+        }
     }
 }
 
@@ -131,18 +147,42 @@ export async function generateLangchainCompletion(docId: string, question: strin
 
     console.log("--- Generating LangChain completion for:", question);
 
-    const embeddings = new GoogleGenerativeAIEmbeddings({
-        apiKey: process.env.GOOGLE_API_KEY,
-        model: "models/embedding-001",
-    });
+    let embeddings;
+    try {
+        embeddings = new GoogleGenerativeAIEmbeddings({
+            apiKey: process.env.GOOGLE_API_KEY,
+            model: "models/embedding-001", // 768 dimensions
+        });
+    } catch (error) {
+        console.error("Error initializing embeddings:", error);
+        throw new Error("Failed to initialize embedding model. Please check your API key and quota.");
+    }
 
     const index = await pineconeClient.Index(indexName);
-    const pineconeVectorStore = await PineconeStore.fromExistingIndex(embeddings, {
-        pineconeIndex: index,
-        namespace: docId,
-    });
+    
+    let pineconeVectorStore;
+    try {
+        pineconeVectorStore = await PineconeStore.fromExistingIndex(embeddings, {
+            pineconeIndex: index,
+            namespace: docId,
+        });
+    } catch (error) {
+        console.error("Error connecting to Pinecone:", error);
+        throw new Error("Failed to retrieve document embeddings. Please make sure the document was uploaded successfully.");
+    }
 
-    const results = await pineconeVectorStore.similaritySearch(question, 4);
+    let results;
+    try {
+        results = await pineconeVectorStore.similaritySearch(question, 4);
+    } catch (error: unknown) {
+        console.error("Error performing similarity search:", error);
+        const err = error as { status?: number; message?: string };
+        if (err.status === 429 || err.message?.includes("quota")) {
+            throw new Error("Google API quota exceeded. Please wait a few minutes and try again.");
+        }
+        throw new Error("Failed to search document. Please try again.");
+    }
+    
     const context = results.map((doc) => doc.pageContent).join("\n\n");
 
     const chatHistory = await fetchMessagesFromDb(docId);
