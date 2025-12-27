@@ -6,11 +6,16 @@ export const dynamic = 'force-dynamic';
 
 function Dashboard() {
   return (
-    <div className='h-full max-w-7xl mx-auto '>
-      <div className="flex justify-between items-center p-5 bg-grey-100">
-        <h1 className='text-3xl font-extralight text-indigo-600'>
-          My Documents
-        </h1>
+    <div className='min-h-full max-w-7xl mx-auto px-6 py-8'>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+          <h1 className='text-2xl font-semibold text-white'>
+            My Documents
+          </h1>
+          <p className="text-[#666666] text-sm mt-1">
+            Upload and chat with your PDF files
+          </p>
+        </div>
         <FileCounter />
       </div>
 

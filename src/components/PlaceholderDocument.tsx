@@ -1,6 +1,6 @@
 'use client';
 
-import { FrownIcon, PlusCircleIcon, LockIcon } from "lucide-react";
+import { FrownIcon, PlusIcon, LockIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import useSubscription from "../../hooks/useSubscription";
@@ -8,12 +8,6 @@ import useSubscription from "../../hooks/useSubscription";
 function PlaceholderDocument() {
     const { isOverFileLimit, hasActiveMembership } = useSubscription();
     const router = useRouter();
-
-    // Debug logging
-    console.log("📁 PlaceholderDocument state:", {
-        isOverFileLimit,
-        hasActiveMembership
-    });
 
     const handleClick = () => {
         if (isOverFileLimit) {
@@ -26,14 +20,16 @@ function PlaceholderDocument() {
     // If user is on free plan and over limit, show disabled/locked state
     if (isOverFileLimit && !hasActiveMembership) {
         return (
-            <div className="flex flex-col items-center justify-center w-64 h-80 bg-gray-100 drop-shadow-md text-gray-400 rounded-xl border-2 border-dashed border-gray-300 cursor-not-allowed opacity-75">
-                <LockIcon className="h-16 w-16 text-gray-400" />
-                <p className="text-gray-500 mt-4 text-center font-normal text-sm px-4">
+            <div className="flex flex-col items-center justify-center rounded-xl bg-[#0a0a0a] border border-[#262626] border-dashed p-8 text-center">
+                <div className="w-12 h-12 rounded-xl bg-[#1a1a1a] border border-[#262626] flex items-center justify-center mb-4">
+                    <LockIcon className="h-6 w-6 text-[#666666]" />
+                </div>
+                <p className="text-[#666666] text-sm mb-4">
                     Upload limit reached
                 </p>
                 <Button
                     onClick={() => router.push('/dashboard/upgrade')}
-                    className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white"
+                    className="bg-white text-black hover:bg-[#e5e5e5]"
                     size="sm"
                 >
                     Upgrade to PRO
@@ -43,26 +39,32 @@ function PlaceholderDocument() {
     }
 
     return (
-        <Button
+        <button
             onClick={handleClick}
-            className="flex flex-col items-center justify-center w-64 h-80 bg-gray-200 hover:bg-gray-300 drop-shadow-md text-gray-500 rounded-xl border-2 border-dashed border-gray-400"
+            className="group flex flex-col items-center justify-center rounded-xl bg-[#0a0a0a] border border-[#262626] border-dashed p-8 text-center transition-all duration-300 hover:border-[#404040] hover:bg-[#0a0a0a]"
         >
             {isOverFileLimit ? (
                 <>
-                    <FrownIcon className="h-16 w-16 text-red-500" />
-                    <p className="text-red-500 mt-4 text-center font-normal text-sm">
-                        You have reached your document limit. 
+                    <div className="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
+                        <FrownIcon className="h-6 w-6 text-red-500" />
+                    </div>
+                    <p className="text-red-400 text-sm">
+                        Limit reached
                         <br />
-                        Upgrade to add more documents.
+                        <span className="text-[#666666]">Upgrade to add more</span>
                     </p>
                 </>
             ) : (
                 <>
-                    <PlusCircleIcon className="h-16 w-16" />
-                    <p className="font-normal mt-2">Add a document</p>
+                    <div className="w-12 h-12 rounded-xl bg-[#1a1a1a] border border-[#262626] flex items-center justify-center mb-4 group-hover:border-[#404040] transition-colors">
+                        <PlusIcon className="h-6 w-6 text-[#666666] group-hover:text-white transition-colors" />
+                    </div>
+                    <p className="text-[#666666] text-sm group-hover:text-[#a1a1a1] transition-colors">
+                        Add a document
+                    </p>
                 </>
             )}
-        </Button>
+        </button>
     );
 }
 

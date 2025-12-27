@@ -3,7 +3,7 @@
 import { Button } from './ui/button';
 import useSubscription from '../../hooks/useSubscription';
 import Link from 'next/link';
-import { Loader2Icon, StarIcon, CrownIcon } from 'lucide-react';
+import { Loader2Icon, Sparkles, Zap } from 'lucide-react';
 import { createStripePortal } from '../../actions/createStripePortal';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
@@ -24,17 +24,24 @@ function UpgradeButton() {
 
     if (loading) {
         return (
-            <Button variant="outline" className="border-indigo-600" disabled>
-                <Loader2Icon className="animate-spin h-4 w-4" />
+            <Button 
+                variant="outline" 
+                className="border-[#262626] bg-[#1a1a1a]" 
+                disabled
+            >
+                <Loader2Icon className="animate-spin h-4 w-4 text-[#666666]" />
             </Button>
         );
     }
 
     if (!hasActiveMembership) {
         return (
-            <Button asChild variant="default" className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+            <Button 
+                asChild 
+                className="electric-border bg-[#0a0a0a] text-white hover:bg-[#1a1a1a] border border-[#262626]"
+            >
                 <Link href="/dashboard/upgrade">
-                    <StarIcon className="h-4 w-4 mr-1 fill-yellow-400 text-yellow-400" />
+                    <Sparkles className="h-4 w-4 mr-1.5 text-blue-500" />
                     Upgrade
                 </Link>
             </Button>
@@ -46,14 +53,14 @@ function UpgradeButton() {
             onClick={handleAccount}
             disabled={isPending}
             variant="outline"
-            className="border-indigo-600"
+            className="border-[#262626] bg-[#1a1a1a] text-white hover:bg-[#262626]"
         >
             {isPending ? (
                 <Loader2Icon className="animate-spin h-4 w-4" />
             ) : (
                 <>
-                    <CrownIcon className="h-4 w-4 mr-1 text-indigo-600" />
-                    PRO Account
+                    <Zap className="h-4 w-4 mr-1.5 text-blue-500" />
+                    PRO
                 </>
             )}
         </Button>

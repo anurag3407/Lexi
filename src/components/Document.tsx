@@ -34,26 +34,33 @@ function Document({ id, name, downloadUrl, size }: DocumentProps) {
 
     return (
         <div
-            className="flex flex-col w-64 h-80 rounded-xl bg-white drop-shadow-md justify-between p-4 transition-all transform hover:scale-105 hover:bg-indigo-50 cursor-pointer group"
+            className="group relative flex flex-col rounded-xl bg-[#0a0a0a] border border-[#262626] p-5 transition-all duration-300 hover:border-[#404040] cursor-pointer"
             onClick={() => router.push(`/dashboard/files/${id}`)}
         >
+            {/* Electric border on hover */}
+            <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-blue-500 to-blue-400 opacity-0 group-hover:opacity-100 blur-sm transition-opacity duration-300 pointer-events-none" style={{ zIndex: -1 }} />
+            
             <div className="flex-1 flex flex-col">
-                <div className="w-full h-32 bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-lg flex items-center justify-center mb-4">
-                    <FileTextIcon className="h-16 w-16 text-indigo-600" />
+                {/* File Icon */}
+                <div className="w-full aspect-[4/3] bg-[#1a1a1a] rounded-lg flex items-center justify-center mb-4 border border-[#262626] group-hover:border-[#404040] transition-colors">
+                    <FileTextIcon className="h-12 w-12 text-[#666666] group-hover:text-[#a1a1a1] transition-colors" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 truncate" title={name}>
+                
+                {/* File Info */}
+                <h3 className="text-sm font-medium text-white truncate" title={name}>
                     {name}
                 </h3>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-xs text-[#666666] mt-1">
                     {byteSize(size).toString()}
                 </p>
             </div>
 
-            <div className="flex space-x-2 mt-4" onClick={(e) => e.stopPropagation()}>
+            {/* Actions */}
+            <div className="flex gap-2 mt-4" onClick={(e) => e.stopPropagation()}>
                 <Button
                     variant="outline"
                     size="sm"
-                    className="flex-1"
+                    className="flex-1 bg-[#1a1a1a] border-[#262626] text-[#a1a1a1] hover:bg-[#262626] hover:text-white hover:border-[#404040]"
                     asChild
                 >
                     <a
@@ -61,14 +68,14 @@ function Document({ id, name, downloadUrl, size }: DocumentProps) {
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        <DownloadCloud className="h-4 w-4 mr-1" />
+                        <DownloadCloud className="h-4 w-4 mr-1.5" />
                         Download
                     </a>
                 </Button>
                 <Button
                     variant="outline"
                     size="sm"
-                    className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                    className="bg-[#1a1a1a] border-[#262626] text-[#666666] hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30"
                     onClick={handleDelete}
                     disabled={isDeleting}
                 >

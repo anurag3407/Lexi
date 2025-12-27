@@ -11,7 +11,7 @@ function FileCounter() {
 
     if (filesLoading) {
         return (
-            <div className="flex items-center gap-2 text-sm text-gray-500">
+            <div className="flex items-center gap-2 text-sm text-[#666666]">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 <span>Loading...</span>
             </div>
@@ -22,11 +22,11 @@ function FileCounter() {
     const planName = hasActiveMembership ? "PRO" : "FREE";
 
     return (
-        <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-                <FileText className={`h-5 w-5 ${isOverFileLimit ? 'text-red-500' : 'text-indigo-600'}`} />
-                <span className={`text-sm font-medium ${isOverFileLimit ? 'text-red-500' : 'text-gray-700'}`}>
-                    <span className="font-bold">{planName}</span> Plan - {limit} files max
+        <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1a1a1a] border border-[#262626]">
+                <FileText className={`h-4 w-4 ${isOverFileLimit ? 'text-red-500' : 'text-[#a1a1a1]'}`} />
+                <span className={`text-sm ${isOverFileLimit ? 'text-red-400' : 'text-[#a1a1a1]'}`}>
+                    <span className="text-white font-medium">{planName}</span> · {limit} files
                 </span>
             </div>
             
@@ -35,9 +35,9 @@ function FileCounter() {
                     onClick={() => router.push('/dashboard/upgrade')}
                     variant="outline"
                     size="sm"
-                    className="text-xs"
+                    className="text-xs bg-transparent border-[#262626] text-[#a1a1a1] hover:bg-[#1a1a1a] hover:text-white hover:border-[#404040]"
                 >
-                    Upgrade to PRO
+                    Upgrade
                 </Button>
             )}
         </div>
