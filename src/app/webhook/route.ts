@@ -5,6 +5,12 @@ import { adminDb } from "../../../firbaseAdmin";
 import stripe from "@/lib/stripe";
 
 export async function POST(request: NextRequest) {
+  // Early return if Stripe is not configured
+  if (!process.env.STRIPE_WEBHOOK_SECRET || !process.env.STRIPE_API_KEY) {
+    console.log("Stripe not configured - webhook disabled");
+    return new NextResponse("Stripe payment system coming soon", { status: 503 });
+  }
+
   const headersList = await headers();
   const body = await request.text();
   const signature = headersList.get("Stripe-Signature");
